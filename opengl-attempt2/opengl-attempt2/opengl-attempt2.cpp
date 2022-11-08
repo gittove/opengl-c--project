@@ -5,17 +5,8 @@
 #include <glfw3.h>
 
 
-//theres ur shader:)
-const char* vertexShaderSource1 = R"(#version 330 core
+const char* vertexShaderSource = R"(#version 330 core
 layout (location = 0) in vec3 aPos;
-
-void main()
-{
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-})";
-
-const char* vertexShaderSource2 = R"(#version 330 core
-layout (location = 2) in vec3 aPos;
 
 void main()
 {
@@ -28,7 +19,7 @@ out vec4 fragColor;
 
 void main()
 {
-    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+    fragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);
 })";
 
 bool fillShape;
@@ -89,13 +80,9 @@ int main()
         std::cout << "glew initialization failed:/" << std::endl;
     }
 
-    unsigned int vertexShader1 = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader1, 1, &vertexShaderSource1, NULL);
-    glCompileShader(vertexShader1);
-
-    unsigned int vertexShader2 = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader2, 1, &vertexShaderSource2, NULL);
-    glCompileShader(vertexShader2);
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
 
     unsigned int fragShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragShader, 1, &fragShaderSource, NULL);
@@ -105,24 +92,31 @@ int main()
     unsigned int shaderProgram;
     shaderProgram = glCreateProgram();
 
-    glAttachShader(shaderProgram, vertexShader1);
-    glAttachShader(shaderProgram, vertexShader2);
+    glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragShader);
     glLinkProgram(shaderProgram);
 
-    glDeleteShader(vertexShader1);
-    glDeleteShader(vertexShader2);
+    glDeleteShader(vertexShader);
     glDeleteShader(fragShader);
 
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f, 
-        0.0f, 0.5f, 0.0f,
+        -0.61f, -0.36f, 0.0f,
+        -0.005f, -0.36f, 0.0f,
+        -0.32f, 0.14f, 0.0f,
+
+        0.005f, -0.36f, 0.0f,
+        0.61f, -0.36f, 0.0f,
+        0.32f, 0.14f, 0.0f,
+
+        -0.32f, 0.15f, 0.0f,
+        0.0f, 0.65f, 0.0f,
+        0.32f, 0.15f, 0.0f
     };
 
     unsigned int indices[] = {
-        0, 1, 3,
-        1,2,3
+        0, 1, 2,
+        3, 4, 5,
+        6, 7, 8
     };
 
     unsigned int VAO, VBO, EBO;
@@ -137,12 +131,16 @@ int main()
     
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // set vertex attribute pointers
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -154,8 +152,8 @@ int main()
         //use shader prgram when we want to render an object
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 9);
+        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
         // rendering commands here :)
@@ -165,7 +163,6 @@ int main()
         glfwSwapBuffers(window);
         // checks if any input events are triggered, updates window state, calls functions (registered via callback methods)
         glfwPollEvents();
-       
     }
 
     // deallocating resources
