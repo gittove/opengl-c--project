@@ -4,22 +4,26 @@
 #include <glew.h>
 #include <glfw3.h>
 
-
 const char* vertexShaderSource = R"(#version 330 core
 layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+
+out vec3 ourColor;
 
 void main()
 {
     gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    ourColor = aColor;
 })";
-
 
 const char* fragShaderSource = R"(#version 330 core
 out vec4 fragColor;
 
+in vec3 ourColor;
+
 void main()
 {
-    fragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);
+    fragColor = vec4(ourColor, 1.0f);
 })";
 
 bool fillShape;
@@ -100,17 +104,17 @@ int main()
     glDeleteShader(fragShader);
 
     float vertices[] = {
-        -0.61f, -0.36f, 0.0f,
-        -0.005f, -0.36f, 0.0f,
-        -0.32f, 0.14f, 0.0f,
+        -0.61f, -0.36f, 0.0f, 1.0f, 0.0f, 0.0f,
+        -0.005f, -0.36f, 0.0f, 0.0f, 1.0f, 0.0f,
+        -0.32f, 0.14f, 0.0f, 0.0f, 0.0f, 1.0f,
 
-        0.005f, -0.36f, 0.0f,
-        0.61f, -0.36f, 0.0f,
-        0.32f, 0.14f, 0.0f,
+        0.005f, -0.36f, 0.0f, 1.0f, 0.0f, 0.0f,
+        0.61f, -0.36f, 0.0f, 0.0f, 1.0f, 0.0f,
+        0.32f, 0.14f, 0.0f, 0.0f, 0.0f, 1.0f,
 
-        -0.32f, 0.15f, 0.0f,
-        0.0f, 0.65f, 0.0f,
-        0.32f, 0.15f, 0.0f
+        -0.32f, 0.15f, 0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.65f, 0.0f, 0.0f, 1.0f, 0.0f,
+        0.32f, 0.15f, 0.0f, 0.0f, 0.0f, 1.0f
     };
 
     unsigned int indices[] = {
@@ -136,8 +140,10 @@ int main()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // set vertex attribute pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -151,12 +157,17 @@ int main()
 
         //use shader prgram when we want to render an object
         glUseProgram(shaderProgram);
+
+        // make cool green shader effect
+        /*float timeValue = glfwGetTime();
+        float colorValue = (sin(timeValue) * 0.5f) + 0.5f;
+        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+        glUniform4f(vertexColorLocation, 0.0f, colorValue, 0.0f, 1.0f);*/
+        
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 9);
         glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
-
-        // rendering commands here :)
 
         // this swaps the color buffer (a large 2d bugger that contains color values for each pixel)
         // that is used too render during this render iteration, and show it as output on the screen (aka SDL present)
