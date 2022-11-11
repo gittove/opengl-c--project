@@ -1,30 +1,12 @@
 
-#include <iostream>
-
 #include <glew.h>
 #include <glfw3.h>
+#include <filesystem>
 
-const char* vertexShaderSource = R"(#version 330 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
+#include "shader.h"
+#include "stb_image.h"
 
-out vec3 ourColor;
-
-void main()
-{
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-    ourColor = aColor;
-})";
-
-const char* fragShaderSource = R"(#version 330 core
-out vec4 fragColor;
-
-in vec3 ourColor;
-
-void main()
-{
-    fragColor = vec4(ourColor, 1.0f);
-})";
+#include <iostream>
 
 bool fillShape;
 bool spacePressedLastFrame = false;
@@ -79,48 +61,28 @@ int main()
 
     GLenum err = glewInit();
 
-    if (GLEW_OK != err)
-    {
-        std::cout << "glew initialization failed:/" << std::endl;
-    }
+    auto root = std::filesystem::current_path();
+    auto vertFilePath = std::filesystem::path{ "shaders/shader.vs" };
+    auto fragFilePath = std::filesystem::path{ "shaders/shader.fs" };
 
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
+    std::string vertString = (root / vertFilePath).string();
+    std::string fragString = (root / fragFilePath).string();
 
-    unsigned int fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragShader, 1, &fragShaderSource, NULL);
-    glCompileShader(fragShader);
+    const char* vertPath = vertString.c_str();
+    const char* fragPath = fragString.c_str();
 
-    // link shaders
-    unsigned int shaderProgram;
-    shaderProgram = glCreateProgram();
-
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragShader);
-    glLinkProgram(shaderProgram);
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragShader);
+    Shader myShader(vertPath, fragPath);
 
     float vertices[] = {
-        -0.61f, -0.36f, 0.0f, 1.0f, 0.0f, 0.0f,
-        -0.005f, -0.36f, 0.0f, 0.0f, 1.0f, 0.0f,
-        -0.32f, 0.14f, 0.0f, 0.0f, 0.0f, 1.0f,
-
-        0.005f, -0.36f, 0.0f, 1.0f, 0.0f, 0.0f,
-        0.61f, -0.36f, 0.0f, 0.0f, 1.0f, 0.0f,
-        0.32f, 0.14f, 0.0f, 0.0f, 0.0f, 1.0f,
-
-        -0.32f, 0.15f, 0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.65f, 0.0f, 0.0f, 1.0f, 0.0f,
-        0.32f, 0.15f, 0.0f, 0.0f, 0.0f, 1.0f
+        0.5f, 0.5f, 0.0f,     1.0f, 0.0f, 0.0f,    1.0f, 1.0f,
+        0.5f, -0.5f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,    0.0f, 0.0f,
+        -0.5f, 0.5f, 0.0f,    0.0f, 0.0f, 1.0f,    0.0f, 1.0f
     };
 
     unsigned int indices[] = {
-        0, 1, 2,
-        3, 4, 5,
-        6, 7, 8
+        0, 1, 3,
+        1, 2, 3
     };
 
     unsigned int VAO, VBO, EBO;
@@ -140,10 +102,44 @@ int main()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // set vertex attribute pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    // texture
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int width, height, nrChannels;
+
+    auto textureFilePath = std::filesystem::path{ "textures/container.jpg" };
+    std::string texString = (root / textureFilePath).string();
+    const char* texPath = texString.c_str();
+
+    unsigned char* data = stbi_load(texPath, &width, &height, &nrChannels, 4);
+
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        stbi_failure_reason();
+        std::cout << "failed to load texture" << std::endl;
+    }
+
+    stbi_image_free(data);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -155,18 +151,14 @@ int main()
 
         process_input(window);
 
+        glBindTexture(GL_TEXTURE_2D, texture);
         //use shader prgram when we want to render an object
-        glUseProgram(shaderProgram);
-
-        // make cool green shader effect
-        /*float timeValue = glfwGetTime();
-        float colorValue = (sin(timeValue) * 0.5f) + 0.5f;
-        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-        glUniform4f(vertexColorLocation, 0.0f, colorValue, 0.0f, 1.0f);*/
-        
+        myShader.use();
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 9);
-        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+
+
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
         // this swaps the color buffer (a large 2d bugger that contains color values for each pixel)
@@ -179,7 +171,8 @@ int main()
     // deallocating resources
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteProgram(shaderProgram);
+    glDeleteBuffers(1, &EBO);
+    glDeleteProgram(myShader.ID);
 
     glfwTerminate(); 
     return 0;

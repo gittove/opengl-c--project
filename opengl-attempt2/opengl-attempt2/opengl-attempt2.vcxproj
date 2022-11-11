@@ -117,6 +117,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\tove.backenroth\Development Libraries\glew-2.1.0\include\GL;C:\Users\tove.backenroth\Development Libraries\glew-2.1.0\include;C:\Users\tove.backenroth\Development Libraries\glfw-3.3.8.bin.WIN64\include\GLFW;C:\Users\tove.backenroth\Development Libraries\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,10 +143,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="engine.cpp" />
+    <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="opengl-attempt2.cpp" />
+    <ClCompile Include="shader.cpp" />
     <ClCompile Include="testshader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="engine.h" />
+    <ClInclude Include="shader.h" />
     <ClInclude Include="testshader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
