@@ -116,14 +116,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\tove.backenroth\Development Libraries\glew-2.1.0\include\GL;C:\Users\tove.backenroth\Development Libraries\glew-2.1.0\include;C:\Users\tove.backenroth\Development Libraries\glfw-3.3.8.bin.WIN64\include\GLFW;C:\Users\tove.backenroth\Development Libraries\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Tove\Documents\Development Libraries\glfw-3.3.8\glfw-3.3.8\include\GLFW;C:\Users\Tove\Documents\Development Libraries\glfw-3.3.8\glfw-3.3.8\include;C:\Users\Tove\Documents\Development Libraries\glew-2.1.0-win32\glew-2.1.0\include;C:\Users\Tove\Documents\Development Libraries\glew-2.1.0-win32\glew-2.1.0\include\GL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\tove.backenroth\Development Libraries\glew-2.1.0\lib\Release\x64;C:\Users\tove.backenroth\Development Libraries\glew-2.1.0\lib;C:\Users\tove.backenroth\Development Libraries\glfw-3.3.8.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;Gdi32.lib;User32.lib;Shell32.lib;glew32s.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Tove\Documents\Development Libraries\glew-2.1.0-win32\glew-2.1.0\bin\Release\x64;C:\Users\Tove\Documents\Development Libraries\glfw-3.3.8.bin.WIN64\lib-vc2022;C:\Users\Tove\Documents\Development Libraries\glew-2.1.0-win32\glew-2.1.0\lib;C:\Users\Tove\Documents\Development Libraries\glew-2.1.0-win32\glew-2.1.0\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -143,14 +143,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="engine.cpp" />
     <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="opengl-attempt2.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="testshader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="engine.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="testshader.h" />
   </ItemGroup>
